@@ -11,7 +11,7 @@ output:
 ---
 
 ```{r setup, include=FALSE, eval=TRUE}
-knitr::opts_chunk$set(cache = TRUE, message = FALSE, warning = FALSE, fig.height = 7, fig.width = 9)
+knitr::opts_chunk$set(cache = TRUE, message = FALSE, warning = FALSE)
 
 ```
 
@@ -28,6 +28,7 @@ library(ggthemes)
 library(DT)
 library(htmlwidgets)
 library(ggthemes)
+library(tidySingleCellExperiment)
 
 # Set ggplot theme
 theme_set(theme_classic())
@@ -50,7 +51,8 @@ load("./data/aliSCE.rda")
 #kerenSCE
 aliSCE %>% 
   colData() %>% 
-  data.frame()
+  data.frame() %>% 
+  names()
 ```
 
 # Data cleaning
@@ -145,17 +147,36 @@ cellProp |>
 
 # Region analysis
 
+# **Max CODE CODE CODE CODE here**
+
 ```{r region}
 set.seed(51773)
 
-AliSCE <- lisaClust(
+aliSCE <- lisaClust(
   aliSCE,
   k = 5,
   spatialCoords = c("x", "y"),
   cellType = "cellType", #the markers
-  imageID = "imageID"
+  imageID = "image_number"
 )
 
+
+
+#BPARAM = MulticoreParam(workers = 2)
+```
+
+```{r region}
+
+regionMap(aliSCE,
+          cellType = "cellType")
+
+# regionMap(aliSCE,
+#           cellType = "cellType",
+#           )
+# #LR, DR loco or distant relapse date, 1=yes, 0=no
+# regionMap(aliSCE,
+#           cellType = "cellType",
+#           )
 ```
 
 ## Visualising regions {.tabset}
@@ -164,31 +185,131 @@ AliSCE <- lisaClust(
 
 ```{r viewRegion, fig.height= 8, fig.width=10}
 p = hatchingPlot(
-  kerenSCE,
-  useImages = "5",
+  aliSCE,
+  useImages = "527",
   cellType = "cellType",
   spatialCoords = c("x", "y"),
-  line.spacing = 41, # spacing of lines
-  nbp = 100 # smoothness of lines
+  imageID = "image_number",
+  #line.spacing = 41, # spacing of lines
+  #nbp = 100 # smoothness of lines
 )
 
 p +
   ggthemes::scale_colour_tableau( palette = "Tableau 20") +
   guides(fill=guide_legend(ncol=2))
+
+```
+
+```{r}
+regionMap(aliSCE,
+          cellType = "cellType")
+
 ```
 
 ### Coloured regions
 
+```{r}
+
+#entire relapse
+aliRelapseFactor = aliSCE %>%  
+  mutate(cellType = factor(cellType, ordered = TRUE, levels = sort(unique(cellType))))
+
+aliSCELRrelapseno = aliRelapseFactor |>
+  filter(lr==0, dr==0)
+
+regionMap(aliSCELRrelapseno,
+          cellType = "cellType", type = "heatmap", cluster_rows = FALSE)
+
+aliSCELRrelapseyes = aliRelapseFactor |>
+  filter(lr==1, dr==1)
+
+regionMap(aliSCELRrelapseyes,
+          cellType = "cellType", type = "heatmap",cluster_rows = FALSE)
+
+
+#compare to non spatial data, prove that spatial methods have merit
+
+```
+
+```{r}
+aliRelapseFactor = aliSCE %>%  
+  mutate(cellType = factor(cellType, ordered = TRUE, levels = sort(unique(cellType))))
+
+#loco relapse
+aliSCELocorelapseno = aliRelapseFactor |>
+  filter(lr==0)
+
+regionMap(aliSCELocorelapseno,
+          cellType = "cellType", type = "heatmap", cluster_rows = FALSE)
+
+aliSCELocorelapseyes = aliRelapseFactor |>
+  filter(lr==1)
+
+regionMap(aliSCELocorelapseyes,
+          cellType = "cellType", type = "heatmap",cluster_rows = FALSE)
+
+#no loco, no distal
+#yes loco, no distal recurance
+aliSCELocorelapsenoalpha = aliRelapseFactor |>
+  filter(lr==0, dr==0)
+
+regionMap(aliSCELocorelapsenoalpha,
+          cellType = "cellType", type = "heatmap", cluster_rows = FALSE)
+
+aliSCELocorelapseyesalpha = aliRelapseFactor |>
+  filter(lr==1, dr==0)
+
+regionMap(aliSCELocorelapseyesalpha,
+          cellType = "cellType", type = "heatmap",cluster_rows = FALSE)
+
+#no loco, yes distal
+#yes loco, yes distal recurance
+aliSCELocorelapsenobeta = aliRelapseFactor |>
+  filter(lr==0, dr==1)
+
+regionMap(aliSCELocorelapsenobeta,
+          cellType = "cellType", type = "heatmap", cluster_rows = FALSE)
+
+aliSCELocorelapseyesbeta = aliRelapseFactor |>
+  filter(lr==1, dr==1)
+
+regionMap(aliSCELocorelapseyesbeta,
+          cellType = "cellType", type = "heatmap",cluster_rows = FALSE)
+
+
+#distal relapse
+aliSCEdistalrelapseno = aliRelapseFactor |>
+  filter(dr==0)
+
+regionMap(aliSCEdistalrelapseno,
+          cellType = "cellType", type = "heatmap", cluster_rows = FALSE)
+
+aliSCEdistalrelapseyes = aliRelapseFactor |>
+  filter(dr==1)
+
+regionMap(aliSCEdistalrelapseyes,
+          cellType = "cellType", type = "heatmap",cluster_rows = FALSE)
+
+
+#compare to non spatial data, prove that spatial methods have merit
+
+```
+
 ```{r colourRegion}
-kerenSCE |> 
+aliSCE |> 
   colData() |> 
   data.frame() |> 
-  filter(imageID == "5") |> 
+  filter(image_number == "50") |> 
   ggplot(aes(x = x, y = y, col = region)) +
-  geom_point() +
+  geom_point(size=5) +
   ggthemes::scale_colour_tableau() +
   theme_classic()
+
+#40, 5 terrible images
+#different imaging technology, smaller number of cells
 ```
+
+end code????????????????????????????????????????
 
 ### Region composition
 
