@@ -22,7 +22,7 @@ library(Statial)
 #library(spicyR)
 library(plotly)
 library(ClassifyR)
-#library(lisaClust)
+library(lisaClust)
 library(ggsurvfit)
 library(ggthemes)
 library(DT)
@@ -91,8 +91,59 @@ p2 = aliSCE |>
 
 ggplotly(p2)
 ```
+
+
+##Converting into dataframe
 ```{r}
 
+# p3 = aliSCE |> 
+#   colData() |> 
+#   data.frame() 
+# 
+# p3
+# 
+# write.csv(p3, "aliSCE1.csv", row.names=FALSE)
+```
+```{r}
+
+##lr >0(relapse)
+names(p3)
+filtered_p4 = filter(p3, complete_rec_history == "YES")
+```
+```{r}
+dplyr::count(filtered_p4, lr, sort = TRUE)
+```
+```{r}
+p3 = aliSCE |> 
+  colData() |> 
+  data.frame() 
+filtered_p4 = filter(p3, complete_rec_history == "YES")
+
+lr_0 <- unique(filtered_p4[filtered_p4$lr == 0, "image_number"])
+lr_1 <- unique(filtered_p4[filtered_p4$lr == 1, "image_number"])
+lr_0
+lr_1
+```   
+```{r}
+regionMap(aliSCE,
+          cellType = "cellType")
+```
+
+
+```{r}
+
+p = hatchingPlot(
+  aliSCE,
+  useImages = "527",
+  cellType = "cellType",
+  spatialCoords = c("x", "y"),
+  line.spacing = 41, # spacing of lines
+  nbp = 100 # smoothness of lines
+)
+
+p +
+  ggthemes::scale_colour_tableau( palette = "Tableau 20") +
+  guides(fill=guide_legend(ncol=2))
 
 ```
 
