@@ -10,13 +10,10 @@ output:
     theme: spacelab
 ---
 
-
-
 ```{r setup, include=FALSE, eval=TRUE}
 knitr::opts_chunk$set(cache = TRUE, message = FALSE, warning = FALSE, fig.height = 7, fig.width = 9)
 
 ```
-
 
 ```{r libraries}
 library(tidyverse)
@@ -37,27 +34,26 @@ theme_set(theme_classic())
 
 ```
 
-
 # Loading datasets
 
 Dataset 1 - [Keren et al](https://pubmed.ncbi.nlm.nih.gov/30193111/)
 
 Dataset 2 - [Ali et al](https://www.nature.com/articles/s43018-020-0026-6)
 
-
 The next sections will look at Keren et al.
+
 ```{r data}
-load("../data/kerenSCE.rda")
-#load("../data/aliSCE.rda")
+#load("./data/kerenSCE.rda")
+load("./data/aliSCE.rda")
 
 
-kerenSCE
+#kerenSCE
+aliSCE %>% 
+  colData() %>% 
+  data.frame()
 ```
 
-
-
-# Data cleaning 
-
+# Data cleaning
 
 ```{r cleaningData}
 
@@ -80,25 +76,27 @@ clinicalDf = kerenSCE |>
 
 ```
 
-# Data visualisation{.tabset}
+# Data visualisation {.tabset}
 
 ## Dimension reduction plot
+
 ```{r UMAP}
+#set.seed(51773)
+#kerenSCE <- scater::runUMAP(kerenSCE, exprs_values = "intensities", name = "UMAP")
 set.seed(51773)
-kerenSCE <- scater::runUMAP(kerenSCE, exprs_values = "intensities", name = "UMAP")
+aliSCE <- scater::runUMAP(aliSCE, exprs_values = "counts", name = "UMAP")
+
 
 scater::plotReducedDim(kerenSCE, dimred = "UMAP", colour_by = "cellType")
 ```
 
-
 ## Example image
-
 
 ```{r exampleImage}
 p = kerenSCE |> 
   colData() |> 
   data.frame() |> 
-  filter(imageID == "5") |> 
+  filter(imageID == "4") |> 
   ggplot(aes(x = x, y = y, col = cellType)) +
   geom_point(size = 1) +
   ggthemes::scale_colour_tableau( palette = "Tableau 20")
@@ -107,9 +105,7 @@ p = kerenSCE |>
 ggplotly(p)
 ```
 
-# Calculating cell proportions{.tabset}
-
-
+# Calculating cell proportions {.tabset}
 
 ## Proportions
 
@@ -123,9 +119,7 @@ cellProp |>
   DT::datatable(options = list(scrollX = TRUE))
 ```
 
-
 ## Testing across conditions
-
 
 ```{r testProp}
 testProp = spicyR::colTest(kerenSCE,
@@ -136,8 +130,6 @@ testProp |>
   DT::datatable(options = list(scrollX = TRUE))
 
 ```
-
-
 
 ```{r propBoxplot}
 cellProp |> 
@@ -156,16 +148,17 @@ cellProp |>
 ```{r region}
 set.seed(51773)
 
-kerenSCE <- lisaClust(
-  kerenSCE,
+AliSCE <- lisaClust(
+  aliSCE,
   k = 5,
   spatialCoords = c("x", "y"),
-  cellType = "cellType"
+  cellType = "cellType", #the markers
+  imageID = "imageID"
 )
 
 ```
 
-## Visualising regions{.tabset}
+## Visualising regions {.tabset}
 
 ### Hatching plot
 
@@ -185,6 +178,7 @@ p +
 ```
 
 ### Coloured regions
+
 ```{r colourRegion}
 kerenSCE |> 
   colData() |> 
@@ -197,11 +191,11 @@ kerenSCE |>
 ```
 
 ### Region composition
+
 ```{r}
 regionMap(kerenSCE,
           cellType = "cellType")
 ```
-
 
 # Spatial interactions
 
@@ -218,8 +212,6 @@ interactions |>
   DT::datatable( options = list(scrollX = TRUE))
 ```
 
-
-
 ```{r spatialImage, fig.height=8, fig.width=10}
 p = kerenSCE |> 
   colData() |> 
@@ -234,9 +226,6 @@ p = kerenSCE |>
 
 ggplotly(p)
 ```
-
-
-
 
 ## Check which spatial interactions are associated with survival
 
@@ -271,7 +260,6 @@ survfit2(survivalOutcomes ~ relationship) |>
 ```
 
 # Classification
-
 
 ```{r classification}
 # Calculate proportions of regions in each image
@@ -308,8 +296,6 @@ CV = ClassifyR::crossValidate(
 
 ```
 
-
-
 ```{r classificationPlot}
 ClassifyR::performancePlot(CV, metric = "C-index",
                 characteristicsList = list(x = "auto", fillColour = "Assay Name")) +
@@ -318,4 +304,3 @@ ClassifyR::performancePlot(CV, metric = "C-index",
   theme(axis.text.x = element_text(size = 7)) +
   scale_fill_tableau()
 ```
-
