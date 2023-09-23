@@ -1,0 +1,55 @@
+---
+title: "Kerui Notebook"
+author: "Kerui Yang"
+date: "`r Sys.Date()`"
+output:
+  html_document: 
+    toc: true
+    code_folding: hide
+    self_contained: yes
+    theme: spacelab
+---
+
+```{r setup, include=FALSE, eval=TRUE}
+knitr::opts_chunk$set(cache = TRUE, message = FALSE, warning = FALSE, fig.height = 7, fig.width = 9)
+
+```
+
+```{r libraries}
+library(tidyverse)
+library(SingleCellExperiment)
+library(Statial)
+library(spicyR)
+library(plotly)
+library(ClassifyR)
+library(lisaClust)
+library(ggsurvfit)
+library(ggthemes)
+library(DT)
+library(htmlwidgets)
+library(ggthemes)
+
+# Set ggplot theme
+theme_set(theme_classic())
+
+```
+
+## Loading in datasets
+
+
+```{r data}
+load("./data/kerenSCE.rda")
+load("./data/aliSCE.rda")
+
+aliSCE 
+```
+
+
+```{r}
+set.seed(51773)
+aliSCE <- scater::runUMAP(aliSCE, exprs_values = "intensities", name = "UMAP")
+
+scater::plotReducedDim(aliSCE, dimred = "UMAP", colour_by = "cellType")
+```
+
+
