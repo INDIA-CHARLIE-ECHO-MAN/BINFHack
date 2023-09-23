@@ -1,18 +1,55 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "Kerui Notebook"
+author: "Kerui Yang"
+date: "`r Sys.Date()`"
+output:
+  html_document: 
+    toc: true
+    code_folding: hide
+    self_contained: yes
+    theme: spacelab
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+```{r setup, include=FALSE, eval=TRUE}
+knitr::opts_chunk$set(cache = TRUE, message = FALSE, warning = FALSE, fig.height = 7, fig.width = 9)
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
-
-```{r}
-plot(cars)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+```{r libraries}
+library(tidyverse)
+library(SingleCellExperiment)
+library(Statial)
+library(spicyR)
+library(plotly)
+library(ClassifyR)
+library(lisaClust)
+library(ggsurvfit)
+library(ggthemes)
+library(DT)
+library(htmlwidgets)
+library(ggthemes)
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+# Set ggplot theme
+theme_set(theme_classic())
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+```
+
+## Loading in datasets
+
+
+```{r data}
+load("./data/kerenSCE.rda")
+load("./data/aliSCE.rda")
+
+aliSCE 
+```
+
+
+```{r}
+set.seed(51773)
+aliSCE <- scater::runUMAP(aliSCE, exprs_values = "intensities", name = "UMAP")
+
+scater::plotReducedDim(aliSCE, dimred = "UMAP", colour_by = "cellType")
+```
+
+
