@@ -19,7 +19,7 @@ knitr::opts_chunk$set(cache = TRUE, message = FALSE, warning = FALSE, fig.height
 library(tidyverse)
 library(SingleCellExperiment)
 library(Statial)
-#library(spicyR)
+library(spicyR)
 library(plotly)
 library(ClassifyR)
 library(lisaClust)
@@ -69,7 +69,18 @@ ggplotly(p)
 p1 = aliSCE |> 
   colData() |> 
   data.frame() |>
-  filter(image_number == "345") |> 
+  filter(image_number == "345")
+
+
+generate_animation_frame <- function(data, n) {
+  ggplot(data[1:n, ], aes(x = x, y = y)) +
+    geom_point(color = "blue") +
+    theme_minimal() +
+    ggtitle(paste("Points plotted:", n))
+}
+
+
+
   ggplot(aes(x = x, y = y, col = cellType)) +
   geom_point(size = 1) +
   ggthemes::scale_colour_tableau( palette = "Tableau 20")
@@ -128,20 +139,30 @@ lr_1
 regionMap(aliSCE,
           cellType = "cellType")
 ```
-
-
 ```{r}
+set.seed(51773)
 
-p = hatchingPlot(
+aliSCE <- lisaClust(
   aliSCE,
-  useImages = "527",
+  k = 5,
+  spatialCoords = c("x", "y"),
+  cellType = "cellType"
+)
+```
+
+```{r viewRegion, fig.height= 8, fig.width=10}
+
+p5 = hatchingPlot(
+  aliSCE,
+  imageID = "image_number",
+  useImages = "5",
   cellType = "cellType",
   spatialCoords = c("x", "y"),
   line.spacing = 41, # spacing of lines
   nbp = 100 # smoothness of lines
 )
 
-p +
+p5 +
   ggthemes::scale_colour_tableau( palette = "Tableau 20") +
   guides(fill=guide_legend(ncol=2))
 
