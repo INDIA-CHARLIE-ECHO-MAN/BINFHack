@@ -19,10 +19,10 @@ knitr::opts_chunk$set(cache = TRUE, message = FALSE, warning = FALSE, fig.height
 library(tidyverse)
 library(SingleCellExperiment)
 library(Statial)
-library(spicyR)
+#library(spicyR)
 library(plotly)
 library(ClassifyR)
-library(lisaClust)
+#library(lisaClust)
 library(ggsurvfit)
 library(ggthemes)
 library(DT)
@@ -51,5 +51,48 @@ aliSCE <- scater::runUMAP(aliSCE, exprs_values = "intensities", name = "UMAP")
 
 scater::plotReducedDim(aliSCE, dimred = "UMAP", colour_by = "cellType")
 ```
+```{r}
+p = aliSCE |> 
+  colData() |> 
+  data.frame() |>
+  filter(image_number == "527") |> 
+  ggplot(aes(x = x, y = y, col = cellType)) +
+  geom_point(size = 1) +
+  ggthemes::scale_colour_tableau( palette = "Tableau 20")
 
+
+ggplotly(p)
+```
+
+
+```{r}
+p = aliSCE |> 
+  colData() |> 
+  data.frame() |>
+  filter(image_number == "345") |> 
+  ggplot(aes(x = x, y = y, col = cellType)) +
+  geom_point(size = 1) +
+  ggthemes::scale_colour_tableau( palette = "Tableau 20")
+
+
+ggplotly(p)
+
+```
+
+```{r}
+p = aliSCE |> 
+  colData() |> 
+  data.frame() |>
+  filter(image_number =) |> 
+  ggplot(aes(x = x, y = y, col = cellType)) +
+  geom_point(size = 1) +
+  ggthemes::scale_colour_tableau( palette = "Tableau 20")
+
+
+ggplotly(p)
+```
+```{r}
+
+
+```
 
